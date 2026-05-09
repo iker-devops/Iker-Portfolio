@@ -1,0 +1,206 @@
+---
+// ============================================================================
+// ProjectCard.astro
+// ============================================================================
+// Cada proyecto se presenta como una MINI-VENTANA. La barra de título lleva
+// un icono de carpeta y el nombre del proyecto. Dentro: descripción, stack,
+// y enlaces a repo/demo.
+//
+// La tarjeta entera es un <a> que lleva a la página de detalle del proyecto.
+// Los enlaces externos (repo, demo) se pinchan aparte gracias a stopPropagation.
+// ============================================================================
+
+import type { CollectionEntry } from 'astro:content';
+import Icon from './Icon.astro';
+
+interface Props {
+  proyecto: CollectionEntry<'proyectos'>;
+}
+
+const { proyecto } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<article class="project-window window window-compact lift">
+  <!-- BARRA DE TÍTULO con icono de carpeta -->
+  <header class="window-titlebar">
+    <span class="window-title">
+      <Icon name="folder" size={14} />
+      <span class="window-title-text">{proyecto.data.title}/</span>
+    </span>
+    <span class="window-controls" aria-hidden="true">
+      <!-- MINIMIZAR -->
+      <span class="wc-btn">
+        <svg viewBox="0 0 8 8" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="6" width="6" height="1" fill="currentColor"/>
+        </svg>
+      </span>
+      <!-- MAXIMIZAR -->
+      <span class="wc-btn">
+        <svg viewBox="0 0 8 8" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="6" height="1" fill="currentColor"/>
+          <rect x="1" y="6" width="6" height="1" fill="currentColor"/>
+          <rect x="1" y="2" width="1" height="4" fill="currentColor"/>
+          <rect x="6" y="2" width="1" height="4" fill="currentColor"/>
+        </svg>
+      </span>
+      <!-- CERRAR -->
+      <span class="wc-btn">
+        <svg viewBox="0 0 8 8" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="1" height="1" fill="currentColor"/>
+          <rect x="2" y="2" width="1" height="1" fill="currentColor"/>
+          <rect x="3" y="3" width="2" height="2" fill="currentColor"/>
+          <rect x="2" y="5" width="1" height="1" fill="currentColor"/>
+          <rect x="1" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="6" y="1" width="1" height="1" fill="currentColor"/>
+          <rect x="5" y="2" width="1" height="1" fill="currentColor"/>
+          <rect x="5" y="5" width="1" height="1" fill="currentColor"/>
+          <rect x="6" y="6" width="1" height="1" fill="currentColor"/>
+        </svg>
+      </span>
+    </span>
+  </header>
+
+  <!-- CUERPO -->
+  <div class="window-body project-body">
+    <!-- Año arriba como pequeña etiqueta -->
+    <span class="project-year">{proyecto.data.year}</span>
+
+    <!-- Descripción (clicable: lleva al detalle) -->
+    <a href={`${base}proyectos/${proyecto.id}/`} class="project-desc-link">
+      <p class="project-desc">{proyecto.data.description}</p>
+    </a>
+
+    <!-- Stack como pequeñas etiquetas -->
+    {proyecto.data.stack.length > 0 && (
+      <ul class="project-stack">
+        {proyecto.data.stack.map((tech) => <li>{tech}</li>)}
+      </ul>
+    )}
+
+    <!-- Enlaces tipo botones biselados -->
+    <div class="project-actions">
+      <a href={`${base}proyectos/${proyecto.id}/`} class="btn btn-primary">
+        Abrir →
+      </a>
+      {proyecto.data.repo && (
+        <a href={proyecto.data.repo} target="_blank" rel="noopener noreferrer" class="btn">
+          Código ↗
+        </a>
+      )}
+      {proyecto.data.demo && (
+        <a href={proyecto.data.demo} target="_blank" rel="noopener noreferrer" class="btn">
+          Demo ↗
+        </a>
+      )}
+    </div>
+  </div>
+</article>
+
+<style>
+  /* La ventana en sí ya tiene los biseles desde global.css.
+     Aquí solo ajustamos cosas específicas del proyecto. */
+  .project-window {
+    margin-bottom: 0;             /* el grid del padre se encarga del spacing */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .project-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    flex: 1;                      /* ocupa todo el alto disponible para alinear botones abajo */
+  }
+
+  /* Año */
+  .project-year {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    color: var(--accent-deep);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  :global([data-theme="dark"]) .project-year {
+    color: var(--accent);
+  }
+
+  /* Descripción (sin underline, queremos que se vea como texto del cuerpo de una ventana) */
+  .project-desc-link {
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .project-desc {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--fg);
+    margin: 0 0 0.3rem 0;
+  }
+
+  .project-desc-link:hover .project-desc {
+    color: var(--accent-deep);
+  }
+
+  :global([data-theme="dark"]) .project-desc-link:hover .project-desc {
+    color: var(--accent);
+  }
+
+  .project-window:hover .window-title-text,
+  .project-window:hover .window-title svg {
+    color: var(--titlebar-fg);
+  }
+
+  /* Stack: chips pequeños */
+  .project-stack {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .project-stack li {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    background: var(--window-chrome);
+    color: var(--fg);
+    /* Mini-bisel hundido: cada chip parece un input de OS antiguo */
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-dark),
+      inset -1px -1px 0 var(--bevel-light);
+  }
+
+  /* Acciones (botones) abajo */
+  .project-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;             /* empuja los botones al fondo de la card */
+    padding-top: 0.5rem;
+  }
+
+  /* El botón "primario" (Abrir) destaca con sage */
+  .btn-primary {
+    background: var(--accent);
+    color: var(--titlebar-fg);
+    font-weight: 600;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-deep);
+  }
+
+  [data-theme="dark"] .btn-primary {
+    background: var(--accent);
+    color: var(--titlebar-fg);
+  }
+
+  [data-theme="dark"] .btn-primary:hover {
+    background: var(--accent-light);
+  }
+</style>

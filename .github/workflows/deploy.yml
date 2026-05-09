@@ -1,0 +1,71 @@
+# =============================================================================
+# Workflow de DESPLIEGUE en GitHub Pages
+# =============================================================================
+# Este workflow construye el sitio Astro y lo publica en GitHub Pages
+# automáticamente cada vez que haces push a la rama `main`.
+#
+# CÓMO ACTIVARLO:
+#   1. En GitHub: Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+#   2. Haz push a main. La acción se ejecutará y publicará el sitio.
+#
+# IMPORTANTE: revisa que `site` y `base` en astro.config.mjs estén bien
+# configurados para tu repositorio (ver comentarios en ese archivo).
+# =============================================================================
+
+name: Deploy to GitHub Pages
+
+on:
+  # Despliega al hacer push a main
+  push:
+    branches: [main]
+  # Permite ejecutar el workflow manualmente desde la interfaz de GitHub
+  workflow_dispatch:
+
+# Permisos necesarios para que el workflow pueda publicar en GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Solo un deploy a la vez. Si llega otro push mientras se está desplegando,
+# se cancela el anterior.
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  # JOB 1: Build del sitio
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Setup de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build de Astro
+        run: npm run build
+
+      - name: Subir el artefacto del sitio
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  # JOB 2: Deploy del artefacto a GitHub Pages
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

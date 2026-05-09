@@ -1,0 +1,92 @@
+---
+// ============================================================================
+// posts/index.astro — LISTADO DEL BLOG
+// ============================================================================
+// Toda la lista de posts dentro de UNA ventana titulada "blog/" con icono de
+// carpeta — como abrir una carpeta en el Finder/Explorer y ver todos los
+// archivos dentro.
+// ============================================================================
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Window from '../../components/Window.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+const sortedPosts = allPosts.sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+---
+
+<BaseLayout
+  title="Blog — Iker"
+  description="Notas y artículos sobre DevOps, programación y herramientas que utilizo."
+>
+  <div class="container">
+    <!-- Cabecera de la página, fuera de la ventana -->
+    <header class="page-header">
+      <span class="kicker">Blog</span>
+      <h1>Notas técnicas</h1>
+      <p class="page-intro">
+        Aprendizajes, tutoriales y reflexiones sobre desarrollo, DevOps y
+        las herramientas que uso a diario.
+      </p>
+    </header>
+
+    <!-- TODA la lista dentro de UNA ventana -->
+    <Window title="blog/" icon="folder">
+      <!-- Mini-toolbar tipo Finder con la cuenta de items -->
+      <div class="toolbar">
+        <span class="toolbar-info">
+          {sortedPosts.length} {sortedPosts.length === 1 ? 'archivo' : 'archivos'}
+        </span>
+      </div>
+
+      {sortedPosts.length === 0 ? (
+        <p class="muted">Aún no hay posts publicados.</p>
+      ) : (
+        <div class="file-list">
+          {sortedPosts.map((post) => <PostCard post={post} />)}
+        </div>
+      )}
+    </Window>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-header h1 {
+    margin-bottom: 0.7rem;
+  }
+
+  .page-intro {
+    color: var(--fg-muted);
+    font-size: 1rem;
+    max-width: 55ch;
+  }
+
+  /* Toolbar dentro de la ventana — recuerda al "view options" del Finder */
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.8rem;
+    margin: -1rem -1.2rem 0.5rem -1.2rem;     /* sangría hasta los bordes de la ventana */
+    background: var(--window-chrome);
+    border-bottom: 1px solid var(--border);
+    box-shadow: inset 1px 1px 0 var(--bevel-light), inset -1px -1px 0 var(--bevel-dark);
+  }
+
+  .toolbar-info {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--fg-muted);
+  }
+
+  .file-list {
+    margin: 0 -0.4rem;
+  }
+</style>

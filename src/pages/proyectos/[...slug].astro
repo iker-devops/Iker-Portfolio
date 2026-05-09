@@ -1,0 +1,207 @@
+---
+// ============================================================================
+// proyectos/[...slug].astro — PROYECTO INDIVIDUAL
+// ============================================================================
+// Cada proyecto se abre como una ventana grande con icono de carpeta. Dentro:
+// metadatos en una "ficha de propiedades" (estilo OS clásico) y el contenido
+// renderizado del Markdown.
+// ============================================================================
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Window from '../../components/Window.astro';
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const proyectos = await getCollection('proyectos');
+  return proyectos.map((proyecto) => ({
+    params: { slug: proyecto.id },
+    props: { proyecto },
+  }));
+}
+
+interface Props {
+  proyecto: CollectionEntry<'proyectos'>;
+}
+
+const { proyecto } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+const { Content } = await render(proyecto);
+---
+
+<BaseLayout title={`${proyecto.data.title} — Iker`} description={proyecto.data.description}>
+  <div class="container">
+    <a href={`${base}proyectos/`} class="btn back-btn">← Volver a proyectos</a>
+
+    <Window title={`${proyecto.data.title}/`} icon="folder">
+      <article>
+        <!-- Cabecera -->
+        <header class="project-header">
+          <span class="kicker">{proyecto.data.year}</span>
+          <h1>{proyecto.data.title}</h1>
+          <p class="project-description">{proyecto.data.description}</p>
+        </header>
+
+        <!-- Ficha de propiedades estilo "Get Info" del Finder -->
+        <section class="properties">
+          {proyecto.data.stack.length > 0 && (
+            <div class="prop-row">
+              <span class="prop-label">Stack:</span>
+              <ul class="prop-stack">
+                {proyecto.data.stack.map((tech) => <li>{tech}</li>)}
+              </ul>
+            </div>
+          )}
+
+          {proyecto.data.repo && (
+            <div class="prop-row">
+              <span class="prop-label">Código:</span>
+              <a href={proyecto.data.repo} target="_blank" rel="noopener noreferrer" class="prop-link">
+                {proyecto.data.repo} ↗
+              </a>
+            </div>
+          )}
+
+          {proyecto.data.demo && (
+            <div class="prop-row">
+              <span class="prop-label">Demo:</span>
+              <a href={proyecto.data.demo} target="_blank" rel="noopener noreferrer" class="prop-link">
+                {proyecto.data.demo} ↗
+              </a>
+            </div>
+          )}
+        </section>
+
+        <!-- Contenido renderizado del Markdown -->
+        <div class="prose project-content">
+          <Content />
+        </div>
+      </article>
+    </Window>
+
+    <a href={`${base}proyectos/`} class="btn back-btn">← Volver a proyectos</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .back-btn {
+    margin-bottom: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .project-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .project-header h1 {
+    margin: 0.3rem 0 0.7rem 0;
+  }
+
+  .project-description {
+    color: var(--fg-muted);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  /* Ficha de propiedades — fondo hundido, biselado, look de "info window" */
+  .properties {
+    background: var(--window-chrome);
+    padding: 1rem 1.2rem;
+    margin: 1.5rem 0;
+    /* Hundido (parece pantalla de info) */
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-dark),
+      inset -1px -1px 0 var(--bevel-light),
+      0 0 0 1px var(--bevel-edge);
+  }
+
+  .prop-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .prop-row:last-child {
+    border-bottom: none;
+  }
+
+  .prop-label {
+    flex-shrink: 0;
+    width: 75px;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    font-weight: 500;
+  }
+
+  .prop-stack {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .prop-stack li {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.15rem 0.45rem;
+    background: var(--window-bg);
+    color: var(--fg);
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-light),
+      inset -1px -1px 0 var(--bevel-dark),
+      0 0 0 1px var(--bevel-edge);
+  }
+
+  .prop-link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent-deep);
+    word-break: break-all;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+  }
+
+  :global([data-theme="dark"]) .prop-link {
+    color: var(--accent);
+  }
+
+  .prop-link:hover {
+    background: var(--accent);
+    color: var(--titlebar-fg);
+  }
+
+  /* Contenido (Markdown) */
+  .project-content {
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-top: 1.5rem;
+  }
+
+  .project-content :global(h2) {
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .project-content :global(ul),
+  .project-content :global(ol) {
+    margin-bottom: 1em;
+    padding-left: 1.4em;
+  }
+
+  .project-content :global(blockquote) {
+    margin: 1.3em 0;
+    padding: 0.7em 1.2em;
+    background: var(--window-chrome);
+    border-left: 3px solid var(--accent);
+    color: var(--fg-muted);
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-dark),
+      inset -1px -1px 0 var(--bevel-light);
+  }
+</style>

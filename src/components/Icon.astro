@@ -1,0 +1,151 @@
+---
+// ============================================================================
+// Icon.astro — ICONOS pixel-art
+// ============================================================================
+// Set de iconos SVG pixel-art (16x16) inspirados en OS clásicos.
+// Se renderizan crispamente gracias a `shape-rendering="crispEdges"`.
+//
+// USO:
+//   <Icon name="folder" />
+//   <Icon name="document" size={24} />
+//
+// AÑADIR UN ICONO NUEVO:
+//   1. Añade una entrada al objeto `icons` de abajo
+//   2. Cada entrada es un array de <rect> con coordenadas en una grilla 16x16
+//   3. Usa colores absolutos o "currentColor" para que herede el color del padre
+// ============================================================================
+
+interface Props {
+  name: 'folder' | 'document' | 'app' | 'home' | 'mail' | 'archive' | 'computer';
+  size?: number;       // tamaño en px (por defecto 14)
+  class?: string;
+}
+
+const { name, size = 14, class: className = '' } = Astro.props;
+---
+
+{name === 'folder' && (
+  <svg class={`pixel-icon ${className}`} width={size} height={size} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- Pestaña de la carpeta arriba -->
+    <rect x="1" y="3" width="6" height="2" fill="currentColor"/>
+    <!-- Borde superior del cuerpo (donde se encuentra la pestaña) -->
+    <rect x="1" y="5" width="14" height="1" fill="currentColor"/>
+    <!-- Cuerpo de la carpeta -->
+    <rect x="1" y="6" width="14" height="7" fill="currentColor" opacity="0.85"/>
+    <!-- Pequeño highlight interior -->
+    <rect x="2" y="6" width="12" height="1" fill="#ffffff" opacity="0.25"/>
+  </svg>
+)}
+
+{name === 'document' && (
+  <svg
+    class={`pixel-icon ${className}`}
+    width={size}
+    height={size}
+    viewBox="0 0 16 16"
+    xmlns="http://www.w3.org/2000/svg"
+    shape-rendering="crispEdges"
+  >
+    {/* Borde */}
+    <rect
+      x="2"
+      y="1"
+      width="11"
+      height="14"
+      fill="var(--doc-border-static)"
+    />
+
+    {/* Documento */}
+    <rect
+      x="3"
+      y="2"
+      width="9"
+      height="12"
+      fill="var(--doc-bg-static)"
+    />
+
+    {/* Highlight */}
+    <rect
+      x="3"
+      y="2"
+      width="9"
+      height="1"
+      fill="var(--doc-highlight-static)"
+      opacity="0.7"
+    />
+
+    {/* Esquina */}
+    <polygon
+      points="9,2 12,2 12,5"
+      fill="var(--doc-corner-static)"
+    />
+
+    {/* Líneas */}
+    <rect x="5" y="6" width="5" height="1" fill="var(--doc-lines-static)" />
+    <rect x="5" y="8" width="5" height="1" fill="var(--doc-lines-static)" />
+    <rect x="5" y="10" width="3" height="1" fill="var(--doc-lines-static)" />
+  </svg>
+)}
+
+{name === 'app' && (
+  <svg class={`pixel-icon ${className}`} width={size} height={size} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- Marco de ventana -->
+    <rect x="1" y="2" width="14" height="11" fill="currentColor"/>
+    <!-- Barra de título (más oscura) -->
+    <rect x="2" y="3" width="12" height="2" fill="#000" opacity="0.4"/>
+    <!-- Área de contenido -->
+    <rect x="2" y="6" width="12" height="6" fill="#fff" opacity="0.4"/>
+  </svg>
+)}
+
+{name === 'home' && (
+  <svg class={`pixel-icon ${className}`} width={size} height={size} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- Tejado (triángulo pixelado) -->
+    <rect x="7" y="2" width="2" height="1" fill="currentColor"/>
+    <rect x="6" y="3" width="4" height="1" fill="currentColor"/>
+    <rect x="5" y="4" width="6" height="1" fill="currentColor"/>
+    <rect x="4" y="5" width="8" height="1" fill="currentColor"/>
+    <rect x="3" y="6" width="10" height="1" fill="currentColor"/>
+    <!-- Cuerpo de la casa -->
+    <rect x="4" y="7" width="8" height="6" fill="currentColor" opacity="0.85"/>
+    <!-- Puerta -->
+    <rect x="7" y="10" width="2" height="3" fill="#000" opacity="0.5"/>
+  </svg>
+)}
+
+{name === 'mail' && (
+  <svg class={`pixel-icon ${className}`} width={size} height={size} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- Sobre exterior -->
+    <rect x="1" y="4" width="14" height="9" fill="currentColor"/>
+    <!-- Solapa interior (el "pico" del sobre) -->
+    <rect x="2" y="5" width="12" height="1" fill="#fff" opacity="0.3"/>
+    <rect x="3" y="6" width="10" height="1" fill="#fff" opacity="0.3"/>
+    <rect x="4" y="7" width="8" height="1" fill="#fff" opacity="0.3"/>
+    <rect x="5" y="8" width="6" height="1" fill="#fff" opacity="0.3"/>
+    <rect x="6" y="9" width="4" height="1" fill="#fff" opacity="0.3"/>
+    <rect x="7" y="10" width="2" height="1" fill="#fff" opacity="0.3"/>
+  </svg>
+)}
+
+{name === 'archive' && (
+  <svg class={`pixel-icon ${className}`} width={size} height={size} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- Tapa de la caja -->
+    <rect x="1" y="3" width="14" height="3" fill="currentColor"/>
+    <!-- Cuerpo de la caja -->
+    <rect x="2" y="6" width="12" height="8" fill="currentColor" opacity="0.85"/>
+    <!-- Etiqueta central -->
+    <rect x="6" y="9" width="4" height="2" fill="#000" opacity="0.4"/>
+  </svg>
+)}
+
+{name === 'computer' && (
+  <svg class={`pixel-icon ${className}`} width={size} height={size} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- Monitor -->
+    <rect x="2" y="2" width="12" height="9" fill="currentColor"/>
+    <!-- Pantalla -->
+    <rect x="3" y="3" width="10" height="7" fill="#000" opacity="0.5"/>
+    <!-- Base -->
+    <rect x="6" y="11" width="4" height="2" fill="currentColor"/>
+    <rect x="4" y="13" width="8" height="1" fill="currentColor"/>
+  </svg>
+)}

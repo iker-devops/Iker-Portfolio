@@ -1,0 +1,178 @@
+---
+// ============================================================================
+// Navbar.astro
+// ============================================================================
+// Barra de menús del "sistema" — pegada arriba en todas las páginas.
+//
+// Layout:
+//   [💻 iker.dev]  ./inicio  ./proyectos  ./blog                [Toggle]
+//
+// El logo es un pequeño icono de ordenador + texto. Los enlaces tienen
+// formato de paths Unix (./algo) para reforzar el feel de OS.
+// ============================================================================
+
+import ThemeToggle from './ThemeToggle.astro';
+import Icon from './Icon.astro';
+
+const base = import.meta.env.BASE_URL;
+const path = Astro.url.pathname;
+
+// Detecta si una ruta está activa
+const isActive = (href: string) => {
+  const normalizedPath = path.replace(/\/$/, '') || '/';
+  const normalizedHref = href.replace(/\/$/, '') || '/';
+  if (normalizedHref === base.replace(/\/$/, '')) {
+    return normalizedPath === normalizedHref;
+  }
+  return normalizedPath.startsWith(normalizedHref);
+};
+---
+
+<header class="navbar">
+  <div class="navbar-inner container-wide">
+    <!-- LOGO: icono de ordenador + nombre -->
+    <a href={base} class="logo" aria-label="Inicio">
+      <Icon name="computer" size={18} />
+      <span class="logo-text">iker.dev</span>
+    </a>
+
+    <!-- ENLACES de navegación + toggle -->
+    <nav class="nav-links" aria-label="Navegación principal">
+      <a href={base} class:list={['nav-link', { active: isActive(base) }]}>
+        ./inicio
+      </a>
+      <a href={`${base}proyectos/`} class:list={['nav-link', { active: isActive(`${base}proyectos`) }]}>
+        ./proyectos
+      </a>
+      <a href={`${base}posts/`} class:list={['nav-link', { active: isActive(`${base}posts`) }]}>
+        ./blog
+      </a>
+
+      <ThemeToggle />
+    </nav>
+  </div>
+</header>
+
+<style>
+  /* Navbar = barra de menús pegada arriba */
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--window-chrome);
+    /* Bisel inferior 3D — la barra "sobresale" */
+    box-shadow:
+      inset -1px -1px 0 var(--bevel-dark),
+      inset 1px 1px 0 var(--bevel-light),
+      0 1px 0 var(--bevel-edge);
+  }
+
+  .navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    gap: 1rem;
+  }
+
+  /* LOGO */
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-display);
+    font-size: 1.30rem;
+    font-weight: 600;
+    color: var(--fg);
+    /* Padding pequeño + bisel sutil al hover */
+    padding: 0.25rem 0.5rem;
+    transition: background 0.15s ease;
+  }
+
+  .logo:hover {
+    background: var(--accent-light);
+  }
+
+  [data-theme="dark"] .logo:hover {
+    background: var(--accent-deep);
+    color: var(--titlebar-fg);
+  }
+
+  .logo :global(svg) {
+    color: var(--accent-deep);
+  }
+
+  [data-theme="dark"] .logo :global(svg) {
+    color: var(--accent);
+  }
+
+  /* Navegación */
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .nav-link {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--fg);
+    padding: 0.3rem 0.7rem;
+    transition: background 0.15s ease;
+  }
+
+  .nav-link:hover {
+    background: var(--accent-light);
+  }
+
+  [data-theme="dark"] .nav-link:hover {
+    background: var(--accent-deep);
+    color: var(--titlebar-fg);
+  }
+
+  /* Enlace activo: fondo verde sage SÓLIDO con texto cremoso (como item seleccionado en menú de OS) */
+  .nav-link.active {
+    background: var(--accent);
+    color: var(--titlebar-fg);
+    /* Bisel hundido — parece "presionado" */
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-dark),
+      inset -1px -1px 0 var(--bevel-light);
+  }
+
+  /* En móvil compactamos */
+  @media (max-width: 580px) {
+    .navbar-inner {
+      gap: 0.5rem;
+    }
+    .logo-text {
+      display: none;             /* solo icono en móvil */
+    }
+    .nav-links {
+      gap: 0.15rem;
+    }
+    .nav-link {
+      font-size: 0.78rem;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+
+  /* Móvil MUY pequeño (≤ 380px, p.ej. iPhone SE 1st gen):
+     reducimos aún más para que no se corten los enlaces ni el toggle */
+  @media (max-width: 380px) {
+    .navbar-inner {
+      gap: 0.3rem;
+    }
+    .logo {
+      padding: 0.2rem 0.35rem;
+    }
+    .nav-links {
+      gap: 0.1rem;
+    }
+    .nav-link {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.32rem;
+    }
+  }
+</style>

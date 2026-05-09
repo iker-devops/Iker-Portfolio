@@ -1,0 +1,109 @@
+---
+// ============================================================================
+// ThemeToggle.astro
+// ============================================================================
+// Botón biselado estilo OS antiguo que alterna claro/oscuro.
+// - Hereda los estilos de .btn (bisel 3D + presionado al click)
+// - Muestra ☀ en oscuro y ☾ en claro (cambia con CSS según data-theme)
+// - El SCRIPT ANTI-FOUC vive en BaseLayout.astro
+// ============================================================================
+---
+
+<button
+  id="theme-toggle"
+  class="btn theme-toggle"
+  aria-label="Cambiar tema (claro/oscuro)"
+  title="Cambiar tema"
+>
+  <!-- En tema CLARO se ve este (luna): "cambia a oscuro" -->
+  <svg class="icon icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true">
+    <!-- Luna creciente sólida con hueco interior:
+         - filas 2-3 y 12-13: extremos superior/inferior de la "C"
+         - filas 5-10: cuerpo izquierdo (3 píxeles de ancho)
+         - puntitos x=8 en las filas 4-5 y 10-11: detalle del hueco interior -->
+    <rect x="5" y="2" width="4" height="1"/>
+    <rect x="3" y="3" width="7" height="1"/>
+    <rect x="2" y="4" width="3" height="1"/>
+    <rect x="8" y="4" width="2" height="1"/>
+    <rect x="1" y="5" width="3" height="6"/>
+    <rect x="8" y="5" width="1" height="1"/>
+    <rect x="8" y="10" width="1" height="1"/>
+    <rect x="2" y="11" width="3" height="1"/>
+    <rect x="8" y="11" width="2" height="1"/>
+    <rect x="3" y="12" width="7" height="1"/>
+    <rect x="5" y="13" width="4" height="1"/>
+  </svg>
+
+  <!-- En tema OSCURO se ve este (sol): "cambia a claro" -->
+  <svg class="icon icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true">
+    <!-- Sol pixelado: cuadrado central + 4 rayos cruz -->
+    <rect x="6" y="6" width="4" height="4"/>
+    <rect x="7" y="2" width="2" height="2"/>
+    <rect x="7" y="12" width="2" height="2"/>
+    <rect x="2" y="7" width="2" height="2"/>
+    <rect x="12" y="7" width="2" height="2"/>
+    <!-- Diagonales -->
+    <rect x="3" y="3" width="2" height="2"/>
+    <rect x="11" y="3" width="2" height="2"/>
+    <rect x="3" y="11" width="2" height="2"/>
+    <rect x="11" y="11" width="2" height="2"/>
+  </svg>
+
+  <span class="label">Tema</span>
+</button>
+
+<style>
+  .theme-toggle {
+    /* Tamaño un poco más compacto que un .btn estándar */
+    padding: 0.3rem 0.6rem;
+    font-size: 1rem;
+    color: var(--fg);
+  }
+
+  .icon {
+    color: var(--accent-deep);
+  }
+
+  :global([data-theme="dark"]) .icon {
+    color: var(--accent);
+  }
+
+  /* Por defecto (claro) mostramos LUNA, ocultamos SOL */
+  .icon-sun { display: none; }
+  .icon-moon { display: block; }
+
+  /* En oscuro: invertimos */
+  :global([data-theme="dark"]) .icon-sun { display: block; }
+  :global([data-theme="dark"]) .icon-moon { display: none; }
+
+  /* En móvil ocultamos el texto, queda solo icono */
+  @media (max-width: 580px) {
+    .label {
+      display: none;
+    }
+  }
+
+  /* Móvil MUY pequeño: padding aún menor */
+  @media (max-width: 380px) {
+    .theme-toggle {
+      padding: 0.2rem 0.35rem;
+    }
+  }
+</style>
+
+<script>
+  // ==========================================================================
+  // Lógica del toggle — cambia data-theme en <html> y persiste en localStorage
+  // ==========================================================================
+  const button = document.getElementById('theme-toggle');
+
+  if (button) {
+    button.addEventListener('click', () => {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+  }
+</script>

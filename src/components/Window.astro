@@ -1,0 +1,99 @@
+---
+// ============================================================================
+// Window.astro — VENTANA reutilizable estilo OS antiguo
+// ============================================================================
+// Componente que envuelve cualquier contenido en una "ventana" con barra de
+// título, icono opcional y los 3 botoncitos decorativos a la derecha.
+//
+// USO:
+//   import Window from '../components/Window.astro';
+//
+//   <Window title="readme.md" icon="document">
+//     <p>Contenido aquí</p>
+//   </Window>
+//
+// PROPS:
+//   - title:    texto que aparece en la barra de título (obligatorio)
+//   - icon:     'folder' | 'document' | 'app' | 'home' (opcional)
+//   - compact:  reduce el padding interior (para tarjetas pequeñas)
+//   - inactive: usa el chrome gris en vez del verde sage (ventana sin foco)
+//   - class:    clases extra que añadir al contenedor
+// ============================================================================
+
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  icon?: 'folder' | 'document' | 'app' | 'home' | 'mail' | 'archive';
+  compact?: boolean;
+  inactive?: boolean;
+  class?: string;
+  animate?: boolean;
+}
+
+const {
+  title,
+  icon,
+  compact = false,
+  inactive = false,
+  class: className = '',
+  animate = true,
+} = Astro.props;
+
+// Construimos la lista de clases del contenedor
+const classList = [
+  'window',
+  compact ? 'window-compact' : '',
+  inactive ? 'window-inactive' : '',
+  animate ? 'window-open' : '',
+  className,
+].filter(Boolean).join(' ');
+---
+
+<article class={classList}>
+  <!-- BARRA DE TÍTULO -->
+  <header class="window-titlebar">
+    <span class="window-title">
+      {icon && <Icon name={icon} />}
+      <span class="window-title-text">{title}</span>
+    </span>
+
+    <!-- 3 botoncitos con sus iconos pixel-art (decorativos, no interactivos) -->
+    <span class="window-controls" aria-hidden="true">
+      <!-- MINIMIZAR (línea horizontal abajo) -->
+      <span class="wc-btn">
+        <svg viewBox="0 0 8 8" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="6" width="6" height="1" fill="currentColor"/>
+        </svg>
+      </span>
+      <!-- MAXIMIZAR (cuadrado vacío) -->
+      <span class="wc-btn">
+        <svg viewBox="0 0 8 8" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="6" height="1" fill="currentColor"/>
+          <rect x="1" y="6" width="6" height="1" fill="currentColor"/>
+          <rect x="1" y="2" width="1" height="4" fill="currentColor"/>
+          <rect x="6" y="2" width="1" height="4" fill="currentColor"/>
+        </svg>
+      </span>
+      <!-- CERRAR (X pixelada) -->
+      <span class="wc-btn">
+        <svg viewBox="0 0 8 8" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="1" height="1" fill="currentColor"/>
+          <rect x="2" y="2" width="1" height="1" fill="currentColor"/>
+          <rect x="3" y="3" width="2" height="2" fill="currentColor"/>
+          <rect x="2" y="5" width="1" height="1" fill="currentColor"/>
+          <rect x="1" y="6" width="1" height="1" fill="currentColor"/>
+          <rect x="6" y="1" width="1" height="1" fill="currentColor"/>
+          <rect x="5" y="2" width="1" height="1" fill="currentColor"/>
+          <rect x="5" y="5" width="1" height="1" fill="currentColor"/>
+          <rect x="6" y="6" width="1" height="1" fill="currentColor"/>
+        </svg>
+      </span>
+    </span>
+  </header>
+
+  <!-- CUERPO -->
+  <div class="window-body">
+    <slot />
+  </div>
+</article>

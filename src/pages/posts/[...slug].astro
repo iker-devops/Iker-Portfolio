@@ -1,0 +1,190 @@
+---
+// ============================================================================
+// posts/[...slug].astro — POST INDIVIDUAL
+// ============================================================================
+// Cada post es una ventana de "documento abierto" (icono de documento +
+// nombre del archivo en la barra de título). Dentro: la cabecera con
+// metadatos y el contenido renderizado del Markdown.
+// ============================================================================
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Window from '../../components/Window.astro';
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+const { Content } = await render(post);
+
+const formattedDate = post.data.pubDate.toLocaleDateString('es-ES', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const formattedUpdated = post.data.updatedDate?.toLocaleDateString('es-ES', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<BaseLayout title={`${post.data.title} — Iker`} description={post.data.description}>
+  <div class="container">
+    <!-- Botón "Volver" arriba, fuera de la ventana -->
+    <a href={`${base}posts/`} class="btn back-btn">← Volver al blog</a>
+
+    <Window title={`${post.id}.md`} icon="document">
+      <article>
+        <!-- Cabecera del post -->
+        <header class="post-header">
+          <div class="post-meta">
+            <time datetime={post.data.pubDate.toISOString()}>{formattedDate}</time>
+            {formattedUpdated && (
+              <>
+                <span class="dot">·</span>
+                <span>actualizado {formattedUpdated}</span>
+              </>
+            )}
+          </div>
+
+          <h1>{post.data.title}</h1>
+
+          <p class="post-description">{post.data.description}</p>
+
+          {post.data.tags.length > 0 && (
+            <ul class="post-tags">
+              {post.data.tags.map((tag) => <li>#{tag}</li>)}
+            </ul>
+          )}
+        </header>
+
+        <!-- Contenido renderizado del Markdown -->
+        <div class="prose post-content">
+          <Content />
+        </div>
+      </article>
+    </Window>
+
+    <!-- Botón "Volver" también abajo -->
+    <a href={`${base}posts/`} class="btn back-btn">← Volver al blog</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .back-btn {
+    margin-bottom: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .post-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .post-meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.8rem;
+  }
+
+  .dot { opacity: 0.5; }
+
+  .post-header h1 {
+    margin-bottom: 0.7rem;
+  }
+
+  .post-description {
+    color: var(--fg-muted);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  /* Tags como mini-chips biselados (igual que stack en proyectos) */
+  .post-tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 1rem 0 0 0;
+    padding: 0;
+  }
+
+  .post-tags li {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    background: var(--window-chrome);
+    color: var(--accent-deep);
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-dark),
+      inset -1px -1px 0 var(--bevel-light);
+  }
+
+  :global([data-theme="dark"]) .post-tags li {
+    color: var(--accent);
+  }
+
+  /* Contenido (Markdown renderizado) */
+  .post-content {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .post-content :global(h2) {
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .post-content :global(h3) {
+    margin-top: 1.8rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .post-content :global(ul),
+  .post-content :global(ol) {
+    margin-bottom: 1em;
+    padding-left: 1.4em;
+  }
+
+  .post-content :global(li) {
+    margin-bottom: 0.4em;
+  }
+
+  .post-content :global(blockquote) {
+    margin: 1.3em 0;
+    padding: 0.7em 1.2em;
+    background: var(--window-chrome);
+    border-left: 3px solid var(--accent);
+    color: var(--fg-muted);
+    /* Bisel hundido — la cita parece un "panel hundido" */
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-dark),
+      inset -1px -1px 0 var(--bevel-light);
+  }
+
+  .post-content :global(img) {
+    margin: 1.5em 0;
+    box-shadow: 0 0 0 1px var(--bevel-edge), 2px 2px 0 0 rgba(0, 0, 0, 0.2);
+  }
+</style>

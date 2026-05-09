@@ -1,0 +1,86 @@
+---
+// ============================================================================
+// BaseLayout.astro
+// ============================================================================
+// Layout que envuelve a TODAS las páginas. Define:
+//   - El <head> (meta tags, fonts, favicon, SEO)
+//   - El SCRIPT ANTI-FOUC (importante: ver explicación abajo)
+//   - El Navbar arriba (barra de menús del OS)
+//   - Un <slot /> donde se inyecta el contenido de cada página
+//   - El Footer abajo (barra de estado del OS)
+// ============================================================================
+
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Iker — Portfolio',
+  description = 'Portfolio personal y blog técnico de Iker. DevOps, programación y notas sueltas.',
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+
+    <!-- Color de la barra del navegador en móvil (se adapta al tema) -->
+    <meta name="theme-color" content="#0f1411" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#b8b3a5" media="(prefers-color-scheme: light)" />
+
+    <!-- ====================================================================
+         SCRIPT ANTI-FOUC (Flash Of Unstyled Content)
+         ====================================================================
+         Lee la preferencia de tema desde localStorage y la aplica al <html>
+         ANTES de que se pinte la página. Sin esto, habría un parpadeo.
+         is:inline le dice a Astro que NO procese ni mueva este script.
+         ==================================================================== -->
+    <script is:inline>
+      (function () {
+        // Dark por defecto SIEMPRE. Solo se respeta otra opción si el usuario
+        // la ha guardado explícitamente con el toggle (queda en localStorage).
+        const stored = localStorage.getItem('theme');
+        const theme = stored || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+
+  <body>
+    <Navbar />
+
+    <main class="main">
+      <slot />
+    </main>
+
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .main {
+    /* Espacio entre la barra de menús y el primer contenido */
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    min-height: calc(100vh - 200px);
+  }
+</style>

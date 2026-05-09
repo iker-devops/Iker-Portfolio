@@ -1,0 +1,618 @@
+---
+// ============================================================================
+// index.astro — PÁGINA PRINCIPAL
+// ============================================================================
+// La home presenta cada sección como una "ventana" del OS:
+//   1. Ventana "about-me.txt"     → presentación (hero + bio)
+//   2. Ventana "intereses.txt"    → cosas que me gustan
+//   3. Ventana "blog/"            → últimos posts (icono de carpeta)
+//   4. Ventana "proyectos/"       → proyectos destacados
+//
+// Cada ventana entra con animación de apertura en cascada (window-open).
+// Los textos son DUMMY DATA — cámbialos cuando quieras.
+// ============================================================================
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Window from "../components/Window.astro";
+import Icon from "../components/Icon.astro";
+import PostCard from "../components/PostCard.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { getCollection } from "astro:content";
+
+const base = import.meta.env.BASE_URL;
+
+// Últimos 3 posts publicados
+const allPosts = await getCollection("posts", ({ data }) => !data.draft);
+const recentPosts = allPosts
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  .slice(0, 3);
+
+// Proyectos destacados
+const allProjects = await getCollection("proyectos");
+const featuredProjects = allProjects
+  .filter((p) => p.data.featured)
+  .sort((a, b) => b.data.order - a.data.order);
+---
+
+<BaseLayout
+  title="Iker — Portfolio"
+  description="Portfolio personal y blog técnico de Iker."
+>
+  <div class="container">
+    {
+      /* =============================================================
+         1. VENTANA: ~/about-me.txt
+         ============================================================= */
+    }
+    <Window title="~/about-me.txt" icon="document">
+      <div class="hero">
+        <!-- Avatar como mini-ventana con la foto -->
+        <div class="avatar-frame" aria-hidden="true">
+          <div class="avatar-titlebar">
+            <span class="avatar-controls">
+              <span></span><span></span><span></span>
+            </span>
+          </div>
+          <div class="avatar-body">
+            <span class="avatar-letter">
+              <img
+                class="profile-picture profile-picture--day"
+                src="/public/images/iker-retro-day.png"
+                alt="foto de perfil día"
+              />
+              <img
+                class="profile-picture profile-picture--night"
+                src="/public/images/iker-retro-night.png"
+                alt="foto de perfil noche"
+              />
+            </span>
+          </div>
+        </div>
+
+        <div class="hero-text">
+          <span class="kicker">Hola, soy Iker</span>
+          <h1>
+            Construyo sistemas en la <span class="hero-accent">web</span> y la <span
+              class="hero-accent">nube</span
+            >.
+          </h1>
+          <p class="hero-tagline">
+            Desarrollador PHP con +2 años de experiencia en WordPress y
+            Dolibarr, enfocado en DevOps.
+          </p>
+        </div>
+      </div>
+
+      <hr class="ventana-divider" />
+
+      <h2>Sobre mí</h2>
+      <div class="prose">
+        <p>
+          Trabajo como desarrollador PHP, principalmente con WordPress y
+          Dolibarr, donde principalmente realizo adaptaciones sobre sistemas
+          existentes, resolución de incidencias, análisis de problemas y
+          mantenimiento de aplicaciones en producción.
+        </p>
+        <p>
+          Además, me encargo de tareas de sistemas como gestión de servidores,
+          backups y mantenimiento de entornos. Me interesa todo lo relacionado
+          con automatización, CI/CD, contenedores y, en general, hacer que los
+          sistemas sean más reproducibles y fáciles de mantener. Poco a poco
+          estoy orientando mi perfil hacia DevOps, combinando desarrollo e
+          infraestructura en mi día a día.
+        </p>
+        <p>
+          Si te interesa contactar conmigo,
+          <a href="mailto:iker.reyesn8@gmail.com">escríbeme</a>.
+        </p>
+      </div>
+    </Window>
+
+    {
+      /* =============================================================
+         2. VENTANA: ~/Evolución profesional.txt   (experiencia laboral y estudios)
+         ============================================================= */
+    }
+    <Window title="~/Evolución profesional.txt" icon="folder">
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-date">Presente (en paralelo)</span>
+            <h3>Formación autodidacta en DevOps</h3>
+            <p>
+              Sigo trabajando como desarrollador mientras realizo formación
+              autodidacta en DevOps.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-date">2024 — Presente</span>
+            <h3>Desarrollador web / Sysadmin</h3>
+            <p>
+              Desarrollo y mantenimiento de ERP/CRM (Dolibarr) y WordPress,
+              administración de servidores, automatización mediante scripting,
+              gestión de backups y soporte técnico a clientes.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-date">Educación</span>
+            <h3>Estudios técnicos</h3>
+            <ul>
+              <li>
+                Perito Judicial en Informática y Electrónica Forense +
+                Elaboración de Informes Periciales.
+              </li>
+              <li>Desarrollo de Aplicaciones Web (DAW).</li>
+              <li>Administración de Sistemas Informáticos en Red (ASIR).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </Window>
+
+    {
+      /* =============================================================
+         3. VENTANA: ~/certificaciones.txt
+         ============================================================= */
+    }
+    <Window title="~/certificaciones.txt" icon="document">
+      <h2 class="window-h2">Certificaciones</h2>
+      <p class="prose">
+        Formación y acreditaciones relacionadas con desarrollo, infraestructura
+        y seguridad.
+      </p>
+      <div class="file-list">
+        <!-- <div class="file-row">
+          <span class="file-icon" aria-hidden="true">
+            <Icon name="document" size={16} />
+          </span>
+          <div class="file-info">
+            <h3 class="file-name">Titulo</h3>
+            <p class="file-desc">Descripción</p>
+          </div>
+          <div class="file-meta">
+            <span>2026</span>
+          </div>
+        </div> -->
+      </div>
+    </Window>
+
+    {
+      /* =============================================================
+         4. VENTANA: blog/   (últimos posts)
+         ============================================================= */
+    }
+    <Window title="blog/" icon="folder">
+      <header class="section-header">
+        <h2 class="window-h2">Últimos posts</h2>
+        <a href={`${base}posts/`} class="btn">Ver todos →</a>
+      </header>
+
+      {
+        recentPosts.length === 0 ? (
+          <p class="muted">Aún no hay posts publicados.</p>
+        ) : (
+          <div class="file-list">
+            {recentPosts.map((post) => (
+              <PostCard post={post} />
+            ))}
+          </div>
+        )
+      }
+    </Window>
+
+    {
+      /* =============================================================
+         5. VENTANA: proyectos/   (destacados)
+         ============================================================= */
+    }
+    <Window title="proyectos/" icon="folder">
+      <header class="section-header">
+        <h2 class="window-h2">Proyectos destacados</h2>
+        <a href={`${base}proyectos/`} class="btn">Ver todos →</a>
+      </header>
+
+      {
+        featuredProjects.length === 0 ? (
+          <p class="muted">Aún no hay proyectos destacados.</p>
+        ) : (
+          <div class="project-grid">
+            {featuredProjects.map((proyecto) => (
+              <ProjectCard proyecto={proyecto} />
+            ))}
+          </div>
+        )
+      }
+    </Window>
+  </div>
+</BaseLayout>
+
+<style>
+  /* ----------------------------------------------------------------
+     HERO (dentro de la ventana about-me.txt)
+     ---------------------------------------------------------------- */
+
+  .timeline {
+    position: relative;
+    margin-left: 0;
+    padding-left: 32px;
+    margin-bottom: 28px;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      var(--accent-light),
+      var(--accent-deep)
+    );
+    box-shadow: 0 0 10px rgba(56, 67, 102, 0.12);
+    border-radius: 999px;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -18px;
+    top: 1rem;
+    width: 10px;
+    height: 10px;
+    /* border-radius: 50%; */
+    border: 1px solid rgba(26, 26, 26, 0.4);
+    background: var(--accent);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.18),
+      0 1px 4px rgba(0, 0, 0, 0.08);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .timeline-content {
+    position: relative;
+    margin-left: 44px;
+    padding: 1rem;
+    min-height: 5rem;
+    background: var(--window-bg);
+    border: 1px solid var(--bevel-edge);
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-light),
+      inset -1px -1px 0 var(--bevel-dark),
+      2px 2px 0 rgba(0, 0, 0, 0.08);
+    transition:
+      transform 0.2s ease,
+      background 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .timeline-item:hover .timeline-content {
+    transform: translateX(4px);
+    background: var(--window-bg);
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-light),
+      inset -1px -1px 0 var(--bevel-dark),
+      3px 3px 0 rgba(0, 0, 0, 0.12);
+  }
+
+  .timeline-item:hover .timeline-dot {
+    transform: scale(1.15);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.18),
+      0 0 0 3px rgba(56, 67, 102, 0.08);
+  }
+
+  .timeline-date {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    display: block;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.04em;
+    color: var(--accent-deep);
+  }
+
+  .timeline-content h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .timeline-content p,
+  .timeline-content ul {
+    margin: 0.35rem 0 0 0;
+    line-height: 1.7;
+    opacity: 0.88;
+  }
+
+  .timeline-content ul {
+    padding-left: 1rem;
+    list-style-type: disc;
+  }
+
+  .timeline-content li {
+    margin-bottom: 0.4rem;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 1px rgba(56, 67, 102, 0.12);
+    }
+    50% {
+      transform: scale(1.15);
+      box-shadow: 0 0 0 6px rgba(56, 67, 102, 0.12);
+    }
+  }
+
+  .timeline-item:first-child .timeline-dot {
+    animation: pulse 1.8s infinite ease-in-out;
+  }
+
+  .hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 2.5rem; /* era 1.8rem */
+    margin-bottom: 1.8rem;
+  }
+
+  /* Avatar como MINI-VENTANA con su propia barra y biselado */
+  .avatar-frame {
+    flex-shrink: 0;
+    width: 230px; /* era 110px */
+    background: var(--window-bg);
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-light),
+      inset -2px -2px 0 var(--bevel-dark),
+      0 0 0 1px var(--bevel-edge),
+      2px 2px 0 0 rgba(0, 0, 0, 0.25);
+  }
+
+  .avatar-titlebar {
+    background: var(--titlebar-bg);
+    padding: 5px 7px; /* era 4px 6px */
+    display: flex;
+    justify-content: flex-end;
+    border-bottom: 1px solid var(--bevel-edge);
+  }
+
+  .avatar-controls {
+    display: inline-flex;
+    gap: 3px;
+  }
+
+  .avatar-controls > span {
+    width: 10px; /* era 8px */
+    height: 10px;
+    background: var(--window-chrome);
+    box-shadow:
+      inset 1px 1px 0 var(--bevel-light),
+      inset -1px -1px 0 var(--bevel-dark),
+      0 0 0 1px var(--bevel-edge);
+    display: inline-block;
+  }
+
+  .avatar-body {
+    height: 230px; /* era 90px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--window-bg);
+  }
+
+  .avatar-letter {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  :global([data-theme="dark"]) .avatar-letter {
+    color: var(--accent);
+  }
+
+  .hero-text h1 {
+    margin-bottom: 0.7rem;
+  }
+
+  /* Palabra resaltada en el h1 — fondo verde sólido tipo highlight */
+  .hero-accent {
+    background: var(--accent);
+    color: var(--titlebar-fg);
+    padding: 0 0.15em;
+  }
+
+  .hero-tagline {
+    font-size: 1.1rem; /* era 1rem */
+    color: var(--fg-muted);
+    max-width: 50ch;
+    margin: 0;
+  }
+
+  .profile-picture {
+    width: 100%;
+    height: 100%;
+    display: block;
+    transition: ease 0.5s;
+  }
+
+  .profile-picture--night {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .profile-picture--day {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .profile-picture--night {
+    display: block;
+  }
+
+  .profile-picture:hover {
+    filter: grayscale(0%);
+    transform: scale(1.08);
+  }
+
+  /* En móvil hero apilado */
+  @media (max-width: 600px) {
+    .hero {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.2rem;
+    }
+    .avatar-frame {
+      width: 110px; /* era 80px — un pelín más generoso en móvil */
+    }
+    .avatar-body {
+      height: 90px;
+    }
+    .avatar-letter {
+      /* font-size removed for image */
+    }
+  }
+
+  /* ----------------------------------------------------------------
+     Resto de elementos dentro de las ventanas
+     ---------------------------------------------------------------- */
+
+  /* Divisor dentro de una ventana — más sobrio que el global */
+  .ventana-divider {
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 1.5rem 0;
+  }
+
+  /* Encabezado de sección dentro de ventana (h2 + botón a la derecha) */
+  .window-h2 {
+    margin: 0;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* Lista de intereses */
+  .interests {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.5rem 1.5rem;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+  }
+
+  .interests li {
+    font-size: 0.95rem;
+    padding: 0.3rem 0;
+  }
+
+  .interest-mark {
+    color: var(--accent-deep);
+    margin-right: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  :global([data-theme="dark"]) .interest-mark {
+    color: var(--accent);
+  }
+
+  /* Lista de archivos (posts) — sin border-bottom en el último */
+  .file-list {
+    margin: 0 -0.5rem; /* compensa el padding de cada fila */
+  }
+
+  /* Cada fila de archivo/certificación */
+  .file-row {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 0.9rem;
+    align-items: center;
+    padding: 0.7rem 0.8rem;
+    color: var(--fg);
+    border-bottom: 1px dashed var(--border);
+    transition: background 0.12s ease;
+  }
+
+  .file-row:last-child {
+    border-bottom: none;
+  }
+
+  .file-row:hover {
+    background: var(--accent);
+    color: var(--titlebar-fg);
+  }
+
+  .file-row:hover .file-desc,
+  .file-row:hover .file-meta {
+    color: var(--titlebar-fg);
+  }
+
+  .file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--icon);
+  }
+
+  .file-row:hover .file-icon {
+    color: white;
+  }
+
+  .file-info {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .file-name {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: inherit;
+    word-break: break-word;
+  }
+
+  .file-desc {
+    margin: 0.15rem 0 0 0;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    color: var(--fg-muted);
+  }
+
+  .file-meta {
+    text-align: right;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    color: var(--fg-muted);
+  }
+
+  /* Grid de proyectos */
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
+    margin-top: 0.5rem;
+  }
+</style>
