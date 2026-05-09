@@ -4,7 +4,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: 'https://iker-devops.github.io',
 
-  base: '/',
+  base: '/Iker-Portfolio/',
 
   output: 'static',
 
